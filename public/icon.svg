@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Menu Planner">
+  <rect width="192" height="192" rx="36" fill="#2c4a3e"/>
+  <rect x="40" y="52" width="112" height="88" rx="12" fill="#f7f4ef"/>
+  <rect x="56" y="40" width="80" height="16" rx="8" fill="#f7f4ef"/>
+  <rect x="56" y="76" width="80" height="8" rx="4" fill="#2c4a3e"/>
+  <rect x="56" y="96" width="56" height="8" rx="4" fill="#2c4a3e"/>
+  <rect x="56" y="116" width="68" height="8" rx="4" fill="#2c4a3e"/>
+</svg>

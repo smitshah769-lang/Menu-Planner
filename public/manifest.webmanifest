@@ -1,0 +1,19 @@
+{
+  "name": "Weekly Family Menu Planner",
+  "short_name": "Menu Planner",
+  "description": "Plan the household tiffin menu and copy it as plain text.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f4ef",
+  "theme_color": "#2c4a3e",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
