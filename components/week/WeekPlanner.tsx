@@ -3,11 +3,12 @@
 import { approveAndCopyFullWeek, copyMessage } from "@/lib/message";
 import { MenuGenerateError } from "@/lib/rules";
 import { CLIENT_PERSIST_OPTIONS, syncPushSnapshot } from "@/lib/push";
-import { buildUndecidedSnapshot, generateMenu } from "@/lib/store";
+import { allSlotsDecided, buildUndecidedSnapshot, generateMenu } from "@/lib/store";
 import { decidedCount, formatWeekRange, weekdayLabel } from "@/lib/time/week";
 import { slotShortLabel } from "@/lib/ui/slotLabel";
 import { summarizeSlot } from "@/lib/ui/slotSummary";
-import type { Slot, Weekday } from "@/types/week";
+import type { MessageCopyScope } from "@/lib/message";
+import type { Slot, Week, Weekday } from "@/types/week";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PushBanner } from "../push/PushBanner";
@@ -18,6 +19,20 @@ import { useWeekStore } from "./useWeekStore";
 
 function slotById(week: { slots: Slot[] }, slotId: string): Slot | undefined {
   return week.slots.find((candidate) => candidate.id === slotId);
+}
+
+/** Full week when complete; otherwise only decided slots (A2 — never fake a full week). */
+function copyScope(week: Week, midweekSlotIds: string[]): MessageCopyScope {
+  if (midweekSlotIds.length > 0) {
+    return { type: "slots", slotIds: midweekSlotIds };
+  }
+  if (allSlotsDecided(week)) {
+    return { type: "fullWeek" };
+  }
+  const decidedIds = week.slots
+    .filter((slot) => slot.slotStatus === "DECIDED")
+    .map((slot) => slot.id);
+  return { type: "slots", slotIds: decidedIds };
 }
 
 export function WeekPlanner() {
@@ -137,10 +152,7 @@ export function WeekPlanner() {
       return;
     }
     setError(null);
-    const scope =
-      midweekCopyIds.length > 0
-        ? { type: "slots" as const, slotIds: midweekCopyIds }
-        : { type: "fullWeek" as const };
+    const scope = copyScope(week, midweekCopyIds);
 
     const result = await copyMessage(week, scope, templateRaw);
     if (!result.ok) {
@@ -155,12 +167,15 @@ export function WeekPlanner() {
     }
 
     if (result.clipboard.ok) {
+      const filledJustNow = midweekCopyIds.length > 0;
       showToast(
-        scope.type === "slots"
-          ? "Copied selected slot(s) to clipboard"
-          : "Copied week to clipboard",
+        scope.type === "fullWeek"
+          ? "Copied week to clipboard"
+          : filledJustNow
+            ? "Copied selected slot(s) to clipboard"
+            : `Copied ${decided} decided meal(s) — undecided slots omitted`,
       );
-      if (scope.type === "slots") {
+      if (filledJustNow) {
         setMidweekCopyIds([]);
       }
     } else {
@@ -171,8 +186,11 @@ export function WeekPlanner() {
   const copyLabel =
     midweekCopyIds.length > 0
       ? `Copy ${midweekCopyIds.length} slot(s)`
-      : "Copy week";
+      : week && allSlotsDecided(week)
+        ? "Copy week"
+        : `Copy decided (${decided})`;
 
+  const canCopy = week && week.status !== "NOT_CREATED" && decided > 0;
   const canApprove = week && week.status !== "NOT_CREATED";
 
   if (!hydrated || !week) {
@@ -212,7 +230,7 @@ export function WeekPlanner() {
           <button
             type="button"
             className="btn"
-            disabled={week.status === "NOT_CREATED"}
+            disabled={!canCopy}
             onClick={handleCopy}
           >
             {copyLabel}
