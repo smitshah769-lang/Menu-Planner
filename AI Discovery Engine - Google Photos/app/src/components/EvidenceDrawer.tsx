@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { API_BASE, fetchJson, type FeedbackItem } from "@/lib/api";
+import { fetchJson, type FeedbackItem } from "@/lib/api";
 import { SOURCE_LABELS } from "@/lib/chartTheme";
 
 export function EvidenceDrawer({

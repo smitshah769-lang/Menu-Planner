@@ -1,5 +1,5 @@
-export const API_BASE =
-  process.env.NEXT_PUBLIC_DISCOVERY_API_URL || "http://127.0.0.1:8765";
+/** Empty = same-origin (Next.js rewrites / rag-search proxy → Python API). Set full URL only for split UI/API hosts. */
+export const API_BASE = process.env.NEXT_PUBLIC_DISCOVERY_API_URL || "";
 
 function extraHeaders(): HeadersInit {
   const basic = process.env.NEXT_PUBLIC_DISCOVERY_BASIC_AUTH;
@@ -14,11 +14,19 @@ function extraHeaders(): HeadersInit {
 /** Same-origin proxy for POST /search (avoids clashing with the /search page route). */
 export const SEARCH_API_PATH = "/rag-search";
 
+function resolveApiUrl(path: string, init?: RequestInit): string {
+  if (path === "/search" && (init?.method || "GET").toUpperCase() === "POST") {
+    return SEARCH_API_PATH;
+  }
+  const base = API_BASE.trim();
+  if (base && base !== "same-origin") {
+    return `${base.replace(/\/$/, "")}${path}`;
+  }
+  return path;
+}
+
 export async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const url =
-    path === "/search" && (init?.method || "GET").toUpperCase() === "POST"
-      ? SEARCH_API_PATH
-      : `${API_BASE}${path}`;
+  const url = resolveApiUrl(path, init);
   const res = await fetch(url, {
     ...init,
     cache: "no-store",

@@ -21,3 +21,7 @@ Embeddings and reranking run **on the API host** (CPU, `pip install -e '.[analys
 ## GitHub
 
 Code pushes without `data/` (gitignored). Share snapshots via export bundle or separate artifact storage; reviewers need the DB + RAG index on the host running `python -m pipeline serve`.
+
+## Step-by-step free VM
+
+See **[DEPLOY_ORACLE.md](./DEPLOY_ORACLE.md)** and scripts `pack-review-bundle.sh`, `upload-review-bundle.sh`, `vm-bootstrap.sh`.

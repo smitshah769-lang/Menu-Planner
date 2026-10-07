@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
         { source: "/evidence", destination: `${api}/evidence` },
         { source: "/items/:id", destination: `${api}/items/:id` },
         { source: "/search", destination: `${api}/search` },
+        { source: "/handoff", destination: `${api}/handoff` },
       ],
       fallback: [],
     };
